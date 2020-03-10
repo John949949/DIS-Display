@@ -1,0 +1,40 @@
+Protocol
+
+Both the DIS and the Diagnostic use protocols that are similar in structure of the message types and acknowledgment messages.  I believe it is basically a Keyword protocol.  Although there is some information on the web, VAG and the manufacturer’s of commercial tools, are not keen to make the details public so the project has been developed by CAN sniffing the data exchanges and reproducing them, thus I have no idea what some of the messages do and whether they are all actually necessary.  The place to start is here:
+
+https://www.ttforum.co.uk/forum/viewtopic.php?f=19&t=1938787&p=9273651#p9273651 
+
+After that look at the code (DIS_Draw.ccp) and annotated Program Startup.txt file that I have provided and see if you can follow the DIS messages that draw the text.  Messages are sent to the DIS using CANID 6CO and received from it using CANID 6C1.  Ignore other CANIDs to start with.  
+
+The diagnostic protocol is similar and somewhat simpler to follow (ECU_Read.cpp).  The Gateway adds a little complexity since you have to wake it up before it will forward your messages. System sends to receives from the Gateway on CANIDs 200 / 201 and sends to / receives from the Engine ECU on 740 / 300.
+
+Hardware
+
+I used a mega but the code will fit in a uno.  The two CAN shelds can be stacked but you’ll need to change the chip select on one of them.  In my code the DIS is on pin 9 and the Diag Bus on pin 10.  Audi low speed and high speed buses use different voltage levels – see here:
+
+https://procarmanuals.com/vag-ssp-971603-audi-data-bus-technologies/ 
+
+The low speed buses will be shorted out if your CAN shield has a load resister across the CAN H / CAN L lines.  (one of mine had a 100 Ohm resistor across them which I had to remove).  It might be marked R3 but it is right next to the CAN H screw connector.
+
+Obviously the CAN shields need to be tee’d into the Infotainment and Diagnostic Data Buses.  The easiest place to do this is at the Gateway Module as all the buses are present and there is also a handy switched 12V and ground.
+
+Software
+
+The software won’t win any prizes for elegance (or hopefully obfuscation).  It uses a sequential structure with time delays and waits rather than interrupts when messages arrive.  This was OK until I decided to use the reset button to control the pausing and resetting of the software.  If I started again I would use interrupts.
+
+Operation
+
+Start up is a little problematic as several displays (e.g. the airbag warning) override my display and you need often need to restart it to regain control of the display.  A short press on the reset button (on the stalk) pauses the software and stops it sending data.  To restart hold the reset button until the display blanks and fixed data appears.  If you get the fixed data without the numbers, it will be because the diagnostic comms haven’t restarted properly.  You need to wait a while as the engine ECU keeps trying re-sync for a while after the program stops communicating.
+
+As the program pretends to be a BNS 5.0 and a Diagnostic Unit it won’t work at the same time as these units.  If you pause it you should be able to use  a diagnostic tool.  Note that systems that only use the top two lines of the display (like Xtrons Head Units) will work fine with it.
+
+Development
+
+The system is basically a cut-down and simplified version of this commercial unit:
+
+https://fis-control.de/index_en.html 
+
+It should be possible to make it do anything FIS can (good luck implementing UDP!). 
+
+More than happy to help / answer questions (if I can).
+
