@@ -5,6 +5,8 @@ This project uses an Aduino (mega) and 2 CAN shields to read 'Measuring Block' d
 
 Thee are some pictures of the display and the hardware installation on the TT Forum.
 
+https://www.ttforum.co.uk/forum/viewtopic.php?f=19&t=1954729
+
 There is a description of how it works in the file Introduction.TXT and an example of the serial output (with annotations) that it produces showing the sent and received CAN messages.
 
 It works by impersonating the DIS and a Diagnostic Unit (like VCDS) so there are some limitations if you try to use it as the same time as these systems.  You can pause it to use a diagnostic unit or the standard trip computer but you cannot have both this system and the RNS working at the same time.
